@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase/firebase";
+import { doc } from "firebase/firestore";
 import {
   collection,
   limit,
@@ -7,6 +8,12 @@ import {
   orderBy,
   query,
   where
+} from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  increment
 } from "firebase/firestore";
 import heartIcon from "../assets/heart.png";
 import bobbleIcon from "../assets/bobble.png";
