@@ -6,9 +6,9 @@ import PostDetail from "../pages/PostDetail";
 import Install from "../pages/Install";
 
 /* 회원가입 */
-import AuthLanding from "../auth/AuthLanding";
-import Nickname from "../auth/Nickname";
-import PhoneInfo from "../auth/PhoneInfo";
+import AuthLanding from "../auth";
+import Nickname from "../auth/signup";
+import PhoneInfo from "../auth/phone-info";
 import VerifyScreen from "../auth/verify";
 
 export default function Router() {
