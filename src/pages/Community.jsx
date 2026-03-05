@@ -9,12 +9,7 @@ import {
   query,
   where
 } from "firebase/firestore";
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  increment
-} from "firebase/firestore";
+
 import heartIcon from "../assets/heart.png";
 import bobbleIcon from "../assets/bobble.png";
 import lawyerImage from "../assets/lawyer.png";
