@@ -79,7 +79,7 @@ export default function NicknameScreen() {
 
       });
 
-      nav("/verify");
+      nav("/auth/verify");
 
     } catch (error) {
 
