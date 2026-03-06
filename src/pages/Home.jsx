@@ -30,7 +30,7 @@ export default function Home() {
           marginBottom: 40
         }}
       >
-        형사 · 이혼 · 부동산 · 민사 상담을  
+        형사 · 이혼 · 부동산 · 민사 고민을  
         <strong> LawHero </strong>에서 빠르게 해결하세요.
       </p>
 
@@ -73,7 +73,7 @@ export default function Home() {
               cursor: "pointer"
             }}
           >
-            💬 커뮤니티 보기
+              로그인
           </button>
         </a>
 
