@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import BottomNavLayout from "../layouts/BottomNavLayout";
+import BottomNavLayout from "../layouts/BottomNav";
 
 /* 메인 */
 import Home from "../pages/Home";
