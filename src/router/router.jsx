@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import BottomNavLayout from "../components/BottomNav";
+import BottomNavLayout from "../layouts/BottomNavLayout";
 import AuthGuard from "../components/AuthGuard";
 
 /* 메인 */
