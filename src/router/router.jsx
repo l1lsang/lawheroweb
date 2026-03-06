@@ -5,6 +5,12 @@ import Community from "../pages/Community";
 import PostDetail from "../pages/PostDetail";
 import Install from "../pages/Install";
 
+/* 커뮤니티 추가 페이지 */
+import WritePost from "../pages/WritePost";
+import EditPost from "../pages/EditPost";
+import SavedPosts from "../pages/SavedPosts";
+import RecentPosts from "../pages/RecentPosts";
+
 /* 회원가입 */
 import AuthLanding from "../auth";
 import Nickname from "../auth/signup";
@@ -36,6 +42,46 @@ export default function Router() {
           element={
             <AuthGuard>
               <PostDetail />
+            </AuthGuard>
+          }
+        />
+
+        {/* 글 작성 */}
+        <Route
+          path="/community/write"
+          element={
+            <AuthGuard>
+              <WritePost />
+            </AuthGuard>
+          }
+        />
+
+        {/* 글 수정 */}
+        <Route
+          path="/community/edit/:id"
+          element={
+            <AuthGuard>
+              <EditPost />
+            </AuthGuard>
+          }
+        />
+
+        {/* 저장한 글 */}
+        <Route
+          path="/community/saved"
+          element={
+            <AuthGuard>
+              <SavedPosts />
+            </AuthGuard>
+          }
+        />
+
+        {/* 최근 본 글 */}
+        <Route
+          path="/community/recent"
+          element={
+            <AuthGuard>
+              <RecentPosts />
             </AuthGuard>
           }
         />

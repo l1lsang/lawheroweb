@@ -1,19 +1,35 @@
 import { useEffect, useState } from "react";
-import { db } from "../firebase/firebase";
-import { doc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
+
 import {
   collection,
+  doc,
   limit,
   onSnapshot,
   orderBy,
   query,
-  where
+  where,
+  setDoc,
+  deleteDoc
 } from "firebase/firestore";
+import field6 from "../assets/6.png";
+import field7 from "../assets/7.png";
+import field8 from "../assets/8.png";
+import field9 from "../assets/9.png";
+import field10 from "../assets/10.png";
+import fieldAll from "../assets/11.png";
+import { auth, db } from "../firebase/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
-import heartIcon from "../assets/heart.png";
-import bobbleIcon from "../assets/bobble.png";
-import lawyerImage from "../assets/lawyer.png";
-import { useNavigate } from "react-router-dom";
+import {
+  IoBookmark,
+  IoBookmarkOutline,
+  IoHeart,
+  IoChatbubbleOutline,
+  IoFlame,
+  IoPerson
+} from "react-icons/io5";
+
 import level1 from "../assets/1.png";
 import level2 from "../assets/2.png";
 import level3 from "../assets/3.png";
@@ -22,284 +38,419 @@ import level5 from "../assets/5.png";
 
 function getProfileImage(level) {
   switch (level) {
-    case 1:
-      return level1;
-    case 2:
-      return level2;
-    case 3:
-      return level3;
-    case 4:
-      return level4;
-    case 5:
-      return level5;
-    default:
-      return null;
+    case 1: return level1;
+    case 2: return level2;
+    case 3: return level3;
+    case 4: return level4;
+    case 5: return level5;
+    default: return null;
   }
 }
+
 const MAIN_TABS = [
   { key: "experience", label: "경험" },
   { key: "expert", label: "전문가" },
-  { key: "info", label: "정보" },
+  { key: "info", label: "정보" }
 ];
-
+const EXPERT_FIELDS = [
+  { key: "형사", label: "형사 분야", image: field6, color: "#6BAE8F" },
+  { key: "민사", label: "민사 분야", image: field7, color: "#E6A04B" },
+  { key: "도산/개인회생", label: "도산/개인회생", image: field8, color: "#6C7FD8" },
+  { key: "이혼", label: "이혼", image: field9, color: "#E26B7A" },
+  { key: "부동산", label: "부동산", image: field10, color: "#6BAED6" },
+  { key: "all", label: "전체 분야", image: fieldAll, color: "#9CA3AF" },
+];
 export default function Community() {
+
   const navigate = useNavigate();
-const [authorLevels, setAuthorLevels] = useState({});
-  const [mainTab, setMainTab] = useState("experience");
+
   const [posts, setPosts] = useState([]);
-useEffect(() => {
+  const [mainTab, setMainTab] = useState("experience");
 
-  if (posts.length === 0) return;
+  const [user, setUser] = useState(null);
+  const [savedPosts, setSavedPosts] = useState([]);
 
-  const unsubscribers = posts
-    .filter((p) => p.uid)
-    .map((p) => {
+  const [authorLevels, setAuthorLevels] = useState({});
+const [selectedField, setSelectedField] = useState("all");
+  /* 로그인 상태 */
+  useEffect(() => {
+    return onAuthStateChanged(auth, setUser);
+  }, []);
 
-      const ref = doc(db, "app_users", p.uid);
+  /* 게시글 구독 */
+  useEffect(() => {
 
-      return onSnapshot(ref, (snap) => {
+    const base = collection(db, "community_posts");
 
-        if (snap.exists()) {
+   let q = query(
+  base,
+  where("category", "==", mainTab)
+);
 
-          const level = snap.data().profileLevel ?? 0;
+if (mainTab === "expert" && selectedField !== "all") {
+  q = query(q, where("field", "==", selectedField));
+}
 
-          setAuthorLevels((prev) => ({
-            ...prev,
-            [p.uid]: level,
-          }));
+q = query(
+  q,
+  orderBy("createdAt", "desc"),
+  limit(50)
+);
 
-        }
+    const unsub = onSnapshot(q, (snap) => {
 
-      });
+      const list = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      setPosts(list);
 
     });
 
-  return () => unsubscribers.forEach((unsub) => unsub());
+    return () => unsub();
 
-}, [posts]);
- useEffect(() => {
+  }, [mainTab]);
 
-  const base = collection(db, "community_posts");
+  /* 작성자 레벨 구독 */
+  useEffect(() => {
 
-  const q = query(
-    base,
-    where("category", "==", mainTab),
-    orderBy("createdAt", "desc"),
-    limit(50)
-  );
+    if (posts.length === 0) return;
 
-  const unsub = onSnapshot(q, (snap) => {
+    const unsubscribers = posts
+      .filter((p) => p.uid)
+      .map((p) => {
 
-    const list = snap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+        const ref = doc(db, "app_users", p.uid);
 
-    setPosts(list);
+        return onSnapshot(ref, (snap) => {
 
-  });
+          if (snap.exists()) {
 
-  return () => unsub();
+            const level = snap.data().profileLevel ?? 0;
 
-}, [mainTab]);
+            setAuthorLevels((prev) => ({
+              ...prev,
+              [p.uid]: level
+            }));
+
+          }
+
+        });
+
+      });
+
+    return () => unsubscribers.forEach((unsub) => unsub());
+
+  }, [posts]);
+
+  /* 저장 글 구독 */
+  useEffect(() => {
+
+    if (!user) return;
+
+    const q = collection(db, "app_users", user.uid, "savedPosts");
+
+    const unsub = onSnapshot(q, (snap) => {
+
+      const ids = snap.docs.map((d) => d.id);
+      setSavedPosts(ids);
+
+    });
+
+    return () => unsub();
+
+  }, [user]);
+
+  /* 저장 */
+  const handleSave = async (postId) => {
+
+    if (!user) return;
+
+    const ref = doc(db, "app_users", user.uid, "savedPosts", postId);
+
+    if (savedPosts.includes(postId)) {
+
+      await deleteDoc(ref);
+
+    } else {
+
+      await setDoc(ref, {
+        savedAt: new Date()
+      });
+
+    }
+
+  };
+
   return (
+
     <div className="container">
 
-  {/* 제목 */}
-  <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>
-    커뮤니티
-  </h1>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>
+        커뮤니티
+      </h1>
 
-  {/* 탭 */}
+      {/* 탭 */}
+      <div
+        style={{
+          display: "flex",
+          gap: 20,
+          marginBottom: 30
+        }}
+      >
+        {MAIN_TABS.map((tab) => (
+
+          <div
+            key={tab.key}
+            onClick={() => setMainTab(tab.key)}
+            style={{
+              fontWeight: 700,
+              fontSize: 18,
+              cursor: "pointer",
+              color: mainTab === tab.key ? "#111827" : "#9CA3AF"
+            }}
+          >
+            {tab.label}
+          </div>
+
+        ))}
+      </div>
+{mainTab === "expert" && (
   <div
     style={{
       display: "flex",
-      gap: 20,
-      marginBottom: 30,
-    }}
-  >
-    {MAIN_TABS.map((tab) => (
-      <div
-        key={tab.key}
-        onClick={() => setMainTab(tab.key)}
-        style={{
-          fontWeight: 700,
-          fontSize: 18,
-          cursor: "pointer",
-          color: mainTab === tab.key ? "#111827" : "#9CA3AF",
-        }}
-      >
-        {tab.label}
-      </div>
-    ))}
-  </div>
-
-  {/* 글 목록 */}
-  <div>
-
-    {posts.map((post) => (
-
-  <div
-    key={post.id}
-    onClick={() => navigate(`/community/${post.id}`)}
-    style={{
-      padding: "18px 0",
-      borderBottom: "1px solid #E5E7EB",
-      cursor: "pointer"
+      gap: 10,
+      marginBottom: 20,
+      flexWrap: "wrap"
     }}
   >
 
-    {/* 유저 정보 */}
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        marginBottom: 10
-      }}
-    >
+    {EXPERT_FIELDS.map((field) => (
 
       <div
+        key={field.key}
+        onClick={() => setSelectedField(field.key)}
         style={{
-          width: 36,
-          height: 36,
-          borderRadius: "50%",
-          overflow: "hidden",
-          background: "#F3F4F6",
-          marginRight: 10,
           display: "flex",
           alignItems: "center",
-          justifyContent: "center"
+          gap: 6,
+          padding: "6px 12px",
+          borderRadius: 20,
+          background:
+            selectedField === field.key ? "#4F46E5" : "#F3F4F6",
+          color:
+            selectedField === field.key ? "white" : "#374151",
+          fontWeight: 600,
+          cursor: "pointer"
         }}
       >
 
-        {authorLevels[post.uid] > 0 ? (
-          <img
-            src={getProfileImage(authorLevels[post.uid])}
-            style={{ width: 36, height: 36 }}
-          />
-        ) : (
-          <span style={{ color: "#9CA3AF" }}>👤</span>
-        )}
-
-      </div>
-
-      <div>
-
-        <div style={{ fontWeight: 700 }}>
-          {post.nickname || "유저"}
-        </div>
-
-        <div
-          style={{
-            fontSize: 12,
-            color: "#9CA3AF"
-          }}
-        >
-          {post.createdAt?.toDate?.().toLocaleString?.()}
-        </div>
-
-      </div>
-
-    </div>
-
-    {/* 제목 */}
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        marginBottom: 6
-      }}
-    >
-
-      {post.likeCount >= 10 && (
         <img
-          src={fireIcon}
+          src={field.image}
           style={{
             width: 16,
-            height: 16,
-            marginRight: 6
+            height: 16
           }}
         />
-      )}
 
-      <h3
-        style={{
-          fontSize: 18,
-          fontWeight: 800,
-          margin: 0
-        }}
-      >
-        {post.title}
-      </h3>
+        {field.label}
+
+      </div>
+
+    ))}
+
+  </div>
+)}
+      {/* 글 목록 */}
+      <div>
+
+        {posts.map((post) => (
+
+          <div
+            key={post.id}
+            onClick={() => navigate(`/community/${post.id}`)}
+            style={{
+              padding: "18px 0",
+              borderBottom: "1px solid #E5E7EB",
+              cursor: "pointer"
+            }}
+          >
+
+            {/* 유저 */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: 10
+              }}
+            >
+
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  background: "#F3F4F6",
+                  marginRight: 10,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+              >
+
+                {authorLevels[post.uid] > 0 ? (
+
+                  <img
+                    src={getProfileImage(authorLevels[post.uid])}
+                    style={{ width: 36, height: 36 }}
+                  />
+
+                ) : (
+
+                  <IoPerson size={18} color="#9CA3AF" />
+
+                )}
+
+              </div>
+
+              <div>
+
+                <div style={{ fontWeight: 700 }}>
+                  {post.nickname || "유저"}
+                </div>
+
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#9CA3AF"
+                  }}
+                >
+                  {post.createdAt?.toDate?.().toLocaleString?.()}
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* 제목 */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 6
+              }}
+            >
+
+              <div style={{ display: "flex", alignItems: "center" }}>
+
+                {post.likeCount >= 10 && (
+                  <IoFlame
+                    size={16}
+                    color="#F97316"
+                    style={{ marginRight: 6 }}
+                  />
+                )}
+
+                <h3
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 800,
+                    margin: 0
+                  }}
+                >
+                  {post.title}
+                </h3>
+
+              </div>
+
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSave(post.id);
+                }}
+              >
+                {savedPosts.includes(post.id)
+                  ? <IoBookmark size={20} color="#4F46E5"/>
+                  : <IoBookmarkOutline size={20} color="#6B7280"/>
+                }
+              </div>
+
+            </div>
+
+            {/* 내용 */}
+            <p
+              style={{
+                color: "#374151",
+                marginBottom: 10
+              }}
+            >
+              {post.content?.slice(0,120)}...
+            </p>
+
+            {/* 태그 */}
+            {post.subCategory && (
+              <span
+                style={{
+                  background: "#EEF2FF",
+                  padding: "4px 10px",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "#4F46E5"
+                }}
+              >
+                {post.subCategory}
+              </span>
+            )}
+
+            {/* 좋아요 / 댓글 */}
+            <div
+              style={{
+                display: "flex",
+                gap: 16,
+                marginTop: 10
+              }}
+            >
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4
+                }}
+              >
+                <IoHeart
+                  size={14}
+                  color={post.likeCount >= 10 ? "#EF4444" : "#6B7280"}
+                />
+                <span>{post.likeCount || 0}</span>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4
+                }}
+              >
+                <IoChatbubbleOutline
+                  size={14}
+                  color="#6B7280"
+                />
+                <span>{post.commentCount || 0}</span>
+              </div>
+
+            </div>
+
+          </div>
+
+        ))}
+
+      </div>
 
     </div>
 
-    {/* 내용 */}
-    <p
-      style={{
-        color: "#374151",
-        marginBottom: 10
-      }}
-    >
-      {post.content?.slice(0, 120)}...
-    </p>
-
-    {/* 태그 */}
-    {post.subCategory && (
-      <span
-        style={{
-          background: "#EEF2FF",
-          padding: "4px 10px",
-          borderRadius: 6,
-          fontSize: 12,
-          fontWeight: 600,
-          color: "#4F46E5"
-        }}
-      >
-        {post.subCategory}
-      </span>
-    )}
-
-    {/* 좋아요 / 댓글 */}
-    <div
-      style={{
-        display: "flex",
-        gap: 16,
-        marginTop: 8
-      }}
-    >
-
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <img
-          src={heartIcon}
-          style={{
-            width: 14,
-            height: 14,
-            marginRight: 4
-          }}
-        />
-        <span>{post.likeCount || 0}</span>
-      </div>
-
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <img
-          src={bobbleIcon}
-          style={{
-            width: 14,
-            height: 14,
-            marginRight: 4
-          }}
-        />
-        <span>{post.commentCount || 0}</span>
-      </div>
-
-    </div>
-
-  </div>
-
-))}
-  </div>
-
-</div>
   );
 }
