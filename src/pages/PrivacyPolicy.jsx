@@ -334,7 +334,25 @@ export default function PrivacyPolicy() {
           </tr>
         </tbody>
       </table>
+<div style={{ marginTop: 40, textAlign: "center" }}>
 
+  <a
+    href="/privacy-policy.pdf"
+    download
+    style={{
+      display: "inline-block",
+      padding: "12px 20px",
+      background: "#111827",
+      color: "white",
+      borderRadius: 8,
+      textDecoration: "none",
+      fontWeight: "600"
+    }}
+  >
+    상세 항목 PDF 다운로드
+  </a>
+
+</div>
     </div>
   );
 }
