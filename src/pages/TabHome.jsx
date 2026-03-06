@@ -282,7 +282,7 @@ padding:"14px 12px",
 borderRadius:28
 }}>
 
-<img src={z} style={{
+<img src={g} style={{
 width:50,
 marginRight:16
 }}/>
@@ -456,7 +456,7 @@ color:"#ddd"
 
 </div>
 
-<img src={house} style={{width:120}}/>
+<img src={bannerImg} style={{width:120}}/>
 
 </div>
 
