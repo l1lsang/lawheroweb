@@ -39,7 +39,7 @@ import AuthLanding from "../auth";
 import Nickname from "../auth/signup";
 import PhoneInfo from "../auth/phone-info";
 import VerifyScreen from "../auth/verify";
-
+import KakaoCallback from "../auth/KakaoCallback";
 export default function Router() {
 
   return (
@@ -54,7 +54,10 @@ export default function Router() {
         <Route path="/install" element={<Install />} />
 
         {/* 인증 */}
-
+<Route
+  path="/auth/kakao/callback"
+  element={<KakaoCallback />}
+/>
         <Route path="/auth" element={<AuthLanding />} />
         <Route path="/auth/nickname" element={<Nickname />} />
         <Route path="/auth/phone" element={<PhoneInfo />} />

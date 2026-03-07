@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import {
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithCustomToken,
   onAuthStateChanged
 } from "firebase/auth";
 
@@ -18,30 +19,32 @@ export default function AuthLanding() {
   /* 이미 로그인 상태면 홈으로 이동 */
   useEffect(() => {
 
-  const guest = localStorage.getItem("guest");
+    const guest = localStorage.getItem("guest");
 
-  const unsub = onAuthStateChanged(auth, (user) => {
+    const unsub = onAuthStateChanged(auth, (user) => {
 
-    if (user) {
-      nav("/home");
-      return;
-    }
+      if (user) {
+        nav("/home");
+        return;
+      }
 
-    if (guest) {
-      nav("/home");
-    }
+      if (guest) {
+        nav("/home");
+      }
 
-  });
+    });
 
-  return unsub;
+    return unsub;
 
-}, [nav]);
+  }, [nav]);
 
-  /* 구글 로그인 */
+  /* ===============================
+     🔵 Google 로그인
+  =============================== */
+
   const handleGoogleLogin = async () => {
 
     if (loading) return;
-
     setLoading(true);
 
     try {
@@ -53,7 +56,6 @@ export default function AuthLanding() {
 
       const snap = await getDoc(doc(db, "app_users", uid));
 
-      /* 신규 유저 */
       if (!snap.exists()) {
         nav("/auth/nickname");
         return;
@@ -61,19 +63,16 @@ export default function AuthLanding() {
 
       const data = snap.data();
 
-      /* 닉네임 없음 */
       if (!data?.nickname?.trim()) {
         nav("/auth/nickname");
         return;
       }
 
-      /* 전화 인증 안됨 */
       if (!data?.phoneVerified) {
         nav("/auth/verify");
         return;
       }
 
-      /* 정상 로그인 */
       nav("/home");
 
     } catch (e) {
@@ -86,6 +85,24 @@ export default function AuthLanding() {
       setLoading(false);
 
     }
+  };
+
+  /* ===============================
+     🟡 Kakao 로그인
+  =============================== */
+
+  const handleKakaoLogin = () => {
+
+    const redirectUri =
+      "https://naranweb.vercel.app/auth/kakao/callback";
+
+    const url =
+      `https://kauth.kakao.com/oauth/authorize` +
+      `?client_id=카카오RESTAPI키` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&response_type=code`;
+
+    window.location.href = url;
   };
 
   return (
@@ -131,7 +148,7 @@ export default function AuthLanding() {
           당신에게 맞는 전문가와 연결됩니다
         </p>
 
-        {/* 구글 로그인 */}
+        {/* Google 로그인 */}
 
         <button
           onClick={handleGoogleLogin}
@@ -153,25 +170,45 @@ export default function AuthLanding() {
           {loading ? "로그인 중..." : "Google로 시작하기"}
         </button>
 
+        {/* Kakao 로그인 */}
+
+        <button
+          onClick={handleKakaoLogin}
+          style={{
+            width: "100%",
+            padding: 14,
+            background: "#FEE500",
+            color: "#191919",
+            border: "none",
+            borderRadius: 10,
+            fontSize: 16,
+            fontWeight: 600,
+            cursor: "pointer",
+            marginBottom: 12
+          }}
+        >
+          카카오로 시작하기
+        </button>
+
         {/* 나중에 가입 */}
 
         <button
-  onClick={() => {
-    localStorage.setItem("guest", "true");
-    nav("/home");
-  }}
-  style={{
-    width: "100%",
-    padding: 14,
-    background: "#F3F4F6",
-    border: "none",
-    borderRadius: 10,
-    fontSize: 15,
-    cursor: "pointer"
-  }}
->
-  나중에 가입
-</button>
+          onClick={() => {
+            localStorage.setItem("guest", "true");
+            nav("/home");
+          }}
+          style={{
+            width: "100%",
+            padding: 14,
+            background: "#F3F4F6",
+            border: "none",
+            borderRadius: 10,
+            fontSize: 15,
+            cursor: "pointer"
+          }}
+        >
+          나중에 가입
+        </button>
 
         <p
           style={{
