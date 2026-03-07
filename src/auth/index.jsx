@@ -98,7 +98,7 @@ export default function AuthLanding() {
 
     const url =
       `https://kauth.kakao.com/oauth/authorize` +
-      `?client_id=카카오RESTAPI키` +
+      `?client_id=a1fbf977caeea589545f32274a254ab1` +
       `&redirect_uri=${encodeURIComponent(redirectUri)}` +
       `&response_type=code`;
 
