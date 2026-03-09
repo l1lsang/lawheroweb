@@ -10,37 +10,29 @@ export default function PhoneInfoScreen() {
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [agree, setAgree] = useState(false);
 
-  const isValid = name.length >= 2 && phone.length >= 10;
+  const isValid =
+    name.length >= 2 &&
+    phone.length >= 10 &&
+    agree;
 
   const handleVerify = async () => {
 
-    console.log("🔥 handleVerify 진입");
-
     const user = auth.currentUser;
-    console.log("👤 현재 user:", user?.uid);
-
-    if (!user) {
-      console.log("❌ user가 null임");
-      return;
-    }
+    if (!user) return;
 
     try {
-
-      console.log("📝 Firestore 저장 시도");
 
       await setDoc(
         doc(db, "app_users", user.uid),
         {
           realName: name,
           phoneInput: phone,
+          policyAgree: true
         },
         { merge: true }
       );
-
-      console.log("✅ Firestore 저장 완료");
-
-      console.log("➡️ /auth/verify 이동");
 
       nav("/verify");
 
@@ -84,16 +76,15 @@ export default function PhoneInfoScreen() {
           정보를 입력해 주세요
         </h1>
 
+        {/* 이름 */}
+
         <p style={{ marginTop: 20, marginBottom: 6 }}>
           이름
         </p>
 
         <input
           value={name}
-          onChange={(e) => {
-            console.log("✏️ 이름 입력:", e.target.value);
-            setName(e.target.value);
-          }}
+          onChange={(e) => setName(e.target.value)}
           placeholder="홍길동"
           style={{
             border: "none",
@@ -105,16 +96,15 @@ export default function PhoneInfoScreen() {
           }}
         />
 
+        {/* 전화번호 */}
+
         <p style={{ marginTop: 20, marginBottom: 6 }}>
           전화번호
         </p>
 
         <input
           value={phone}
-          onChange={(e) => {
-            console.log("📞 전화번호 입력:", e.target.value);
-            setPhone(e.target.value);
-          }}
+          onChange={(e) => setPhone(e.target.value)}
           placeholder="01012345678"
           type="tel"
           style={{
@@ -126,6 +116,51 @@ export default function PhoneInfoScreen() {
             outline: "none",
           }}
         />
+
+        {/* 개인정보 동의 */}
+
+        <div
+          onClick={() => setAgree(!agree)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginTop: 30,
+            cursor: "pointer",
+          }}
+        >
+
+          <div
+            style={{
+              width: 18,
+              height: 18,
+              border: "1px solid #9CA3AF",
+              borderRadius: 4,
+              marginRight: 10,
+              background: agree ? "#7C3AED" : "transparent",
+            }}
+          />
+
+          <span style={{ fontSize: 14 }}>
+            개인정보 제3자 제공에 동의합니다
+          </span>
+
+        </div>
+
+        {/* 정책 보기 */}
+
+        <div
+          onClick={() =>
+            window.open("https://lawhero.kr/policy")
+          }
+          style={{
+            marginTop: 8,
+            fontSize: 13,
+            color: "#7C3AED",
+            cursor: "pointer",
+          }}
+        >
+          개인정보 처리방침 보기
+        </div>
 
       </div>
 
@@ -140,14 +175,7 @@ export default function PhoneInfoScreen() {
 
         <button
           disabled={!isValid}
-          onClick={() => {
-
-            console.log("🟣 버튼 눌림");
-            console.log("isValid:", isValid);
-
-            handleVerify();
-
-          }}
+          onClick={handleVerify}
           style={{
             width: "100%",
             padding: 18,
