@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate  } from "react-router-dom";
 
 import BottomNavLayout from "../layouts/BottomNavLayout";
 import AuthGuard from "../components/AuthGuard";
@@ -50,7 +50,7 @@ export default function Router() {
 
         {/* 공개 페이지 */}
 
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Navigate to="/auth" replace />} />
         <Route path="/install" element={<Install />} />
 
         {/* 인증 */}

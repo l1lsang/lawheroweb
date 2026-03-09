@@ -124,7 +124,10 @@ const handleQuickConsult = () => {
 
   if (guest) {
     alert("상담을 이용하려면 로그인이 필요합니다.");
+
+    localStorage.removeItem("guest"); // 게스트 삭제
     navigate("/auth");
+
     return;
   }
 
