@@ -66,9 +66,8 @@ export default function Router() {
 
         <Route
           element={
-            <AuthGuard>
               <BottomNavLayout />
-            </AuthGuard>
+            
           }
         >
 
