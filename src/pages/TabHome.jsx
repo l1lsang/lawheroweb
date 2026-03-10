@@ -25,6 +25,7 @@ import civil from "../assets/civil.png";
 import bankruptcy from "../assets/bankruptcy.png";
 import divorce from "../assets/divorce.png";
 import realestate from "../assets/realestate.png";
+import "./Home.css"
 const CATEGORY_CONFIG = {
 
   "형사": {
@@ -196,7 +197,7 @@ useEffect(() => {
 
 return (
 
-<div style={{
+<div className="c" style={{
 background:"#F5F6F8",
 minHeight:"100vh",
 maxWidth:720,
