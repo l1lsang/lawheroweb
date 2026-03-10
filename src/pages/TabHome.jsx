@@ -200,7 +200,6 @@ return (
 <div className="c" style={{
 background:"#F5F6F8",
 minHeight:"100vh",
-maxWidth:720,
 margin:"0 auto"
 }}>
 
