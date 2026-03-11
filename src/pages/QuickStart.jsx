@@ -100,7 +100,7 @@ doc(db,"consult_requests",requestId),
 ============================== */
 
 const res = await fetch(
-"https://lawheroweb.vercel.app/api/sendPush",
+"https://lawhero-web.vercel.app/api/sendPush",
 {
 method:"POST",
 headers:{

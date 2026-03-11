@@ -248,7 +248,7 @@ export default function CommunityDetail() {
   const handleShare = async () => {
     if (!post?.id) return;
 
-    const webUrl = `https://lawhero-one.vercel.app/community/${post.id}`;
+    const webUrl = `https://lawhero-web.vercel.app/community/${post.id}`;
     const deepLink = `lawhero://community/${post.id}`;
     const message = `${post.title}\n\n앱에서 보기: ${deepLink}\n웹에서 보기: ${webUrl}`;
 

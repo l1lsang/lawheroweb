@@ -14,14 +14,14 @@ export default function KakaoCallback() {
       if (!code) return;
 
       const res = await fetch(
-        "https://api-6g2eamnopq-uc.a.run.app/auth/kakao/exchange",
+        "https://api-z3zamhysqa-uc.a.run.app/auth/kakao/exchange",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             code,
             redirectUri:
-              "https://naranweb.vercel.app/auth/kakao/callback"
+              "https://lawhero-web.vercel.app/auth/kakao/callback"
           })
         }
       );
